@@ -1,0 +1,39 @@
+services:
+  inference-service:
+    build:
+      context: ../..
+      dockerfile: detection/inference_service/Dockerfile
+    # Pass through the Hailo PCIe accelerator from the RPi host.
+    devices:
+      - "/dev/hailo0:/dev/hailo0"
+    ports:
+      - "5556:5556"         # ZMQ PUB (detections)
+    environment:
+      # Enable Hailo Monitor to collect Hailo utilization metrics
+      - HAILO_MONITOR=1
+      # Disable Python's stdout/stderr buffering so logs appear immediately in Docker.
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Mount your compiled .hef model into the container.
+      - ./models:/app/models:ro
+      # Override config at runtime without rebuilding the image.
+      - ./config.yaml:/app/detection/inference_service/config.yaml:ro
+      # Mount hailo_platform from the host instead of bundling it in the image.
+      # Find the right path on the RPi with:
+      #   python3 -c "import hailo_platform; print(hailo_platform.__file__)"
+      # and strip the trailing /__init__.py — adjust the left side below if needed.
+      - /usr/lib/python3/dist-packages/hailo_platform:/usr/local/lib/python3.13/site-packages/hailo_platform:ro
+      - /usr/lib/python3/dist-packages/hailo.cpython-313-aarch64-linux-gnu.so:/usr/local/lib/python3.13/site-packages/hailo.cpython-313-aarch64-linux-gnu.so:ro
+      - /usr/lib/libhailort.so.4.23.0:/usr/lib/libhailort.so.4.23.0:ro
+      - /usr/lib/libhailort.so:/usr/lib/libhailort.so:ro
+      # Mount directories for Hailo Monitor files and view using command hailortcli monitor
+      - /tmp/hmon_files:/tmp/hmon_files
+      - ./logs:/app/logs
+      - ./recordings:/app/recordings
+      # Dataset directory for replay mode (only needed when provider.mode = m3fd)
+      - ../../detection/data:/app/detection/data:ro
+    # host networking lets the container reach the WIRIS camera on the same LAN
+    # and makes ZMQ accessible to other services on the host without port mapping.
+    network_mode: host
+    # restart: unless-stopped
+    stop_grace_period: 60s

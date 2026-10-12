@@ -1,0 +1,43 @@
+services:
+  eval-tracker:
+    build:
+      context: ../..
+      dockerfile: detection/tracker/eval/Dockerfile
+    # Pass through the Hailo PCIe accelerator from the RPi host.
+    devices:
+      - "/dev/hailo0:/dev/hailo0"
+    environment:
+      - HAILO_MONITOR=1
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # ── Hailo ────────────────────────────────────────────────────────────────
+      # Mount hailo_platform from the host instead of bundling it in the image.
+      # Find the right path on the RPi with:
+      #   python3 -c "import hailo_platform; print(hailo_platform.__file__)"
+      # and strip the trailing /__init__.py — adjust the left side below if needed.
+      - /usr/lib/python3/dist-packages/hailo_platform:/usr/local/lib/python3.13/site-packages/hailo_platform:ro
+      - /usr/lib/python3/dist-packages/hailo.cpython-313-aarch64-linux-gnu.so:/usr/local/lib/python3.13/site-packages/hailo.cpython-313-aarch64-linux-gnu.so:ro
+      - /usr/lib/libhailort.so.4.23.0:/usr/lib/libhailort.so.4.23.0:ro
+      - /usr/lib/libhailort.so:/usr/lib/libhailort.so:ro
+      # ── Dataset ──────────────────────────────────────────────────────────────
+      # Exported 3D-Net dataset (rgb/, ir/, labels/, split .txt files).
+      # Re-export with index stamps if not done yet:
+      #   python detection/fiftyone/download_rgbt_dataset.py --output detection/data/3d_net
+      - ../../data:/app/detection/data:ro
+      # ── Model ────────────────────────────────────────────────────────────────
+      # Reuse the same model files as inference_service (no copying needed).
+      - ../../inference_service/models:/app/models:ro
+      # ── Output ───────────────────────────────────────────────────────────────
+      - ./output:/app/output
+    network_mode: host
+    stop_grace_period: 30s
+    # Default run: val split, ByteTrack, output to /app/output/
+    # Override at runtime, e.g.:
+    #   docker compose run eval-tracker --split train --tracker SORT --output-dir /app/output
+    command:
+      - "--split"
+      - "val"
+      - "--hef"
+      - "models/late_fusion_3d_net.hef"
+      - "--output-dir"
+      - "/app/output"

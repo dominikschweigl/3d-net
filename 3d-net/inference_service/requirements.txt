@@ -1,0 +1,12 @@
+numpy
+scipy
+matplotlib
+opencv-python-headless
+psutil
+pyzmq
+pydantic
+pyyaml
+protobuf
+trackers
+# hailo_platform is NOT listed here — it must be installed from the RPi-specific WHL.
+# See the Dockerfile and docker-compose.yaml for instructions.

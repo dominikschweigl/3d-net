@@ -1,0 +1,11 @@
+numpy
+scipy
+matplotlib
+opencv-python-headless
+psutil
+pydantic
+pyyaml
+protobuf
+trackers
+# hailo_platform is NOT listed here — it is mounted from the RPi host at runtime.
+# See Dockerfile and docker-compose.yaml.

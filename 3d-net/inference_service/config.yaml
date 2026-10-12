@@ -1,0 +1,112 @@
+provider:
+  # "live"   — WIRIS camera RTSP streams (requires camera + Hailo hardware)
+  # "m3fd"   — replay M3FD dataset image pairs at a fixed fps (no camera needed)
+  # "3d_net" — replay 3D-Net dataset video frames at a fixed fps (no camera needed)
+  # "rtdod"  — replay RTDOD (or any VOC-format RGBT dataset) at a fixed fps (no camera needed)
+  mode: 3d_net
+  dataset:
+    root: "detection/data/3d_net"
+    splits:
+      - train
+      - val
+    videos:
+    fps: 100.0
+    loop: true
+    max_frames:   # stop after N frames; null = run through the full dataset
+
+camera:
+  ip: "10.174.42.250"
+  # Temporal offset between thermal and visible streams (seconds).
+  # Use wiris_camera/camera_alignment/temporal_offset_estimation.py to measure.
+  temporal_offset_s: -0.15 # negative means thermal in front of visible, 3 frames at 20fps is -0.15s, estimated during testing
+  fps: 20.0  # native WIRIS camera frame rate — used by LiveVideoRecorder
+
+alignment:
+  # Boresight pixel corrections after FOV centering.
+  # Tune by running: python -m detection.inference_service --visualize-alignment
+  tx: -10.0
+  ty: -30.0
+
+model:
+  hef_path: "./models/midP3_fusion_3d_net.hef" # must match the model.hef volume in docker-compose.yaml
+  conf_threshold: 0.2
+  modality: rgbt   # rgb | thermal | rgbt — must match the HEF input channels (rgb/thermal=3ch, rgbt=4ch)
+  
+  # class names 3d net
+  class_names:
+    - person
+    - car
+    - motorcycle
+    - bicycle
+    - bus
+    - truck
+
+  # class names m3fd
+  # class_names:
+  #   - person
+  #   - car
+  #   - bus
+  #   - motorcycle
+  #   - truck
+
+zmq:
+  endpoint: "tcp://*:5556"
+
+service:
+  max_fps:
+  record_only: false  # set true to record raw streams without running the model (live mode only)
+  pipeline_workers: 4
+
+tracker:
+  # "none" disables tracking (track_id is always null).
+  # "sort"      — SORT      (Bewley et al., ICIP 2016)  — lightweight baseline
+  # "bytetrack" — ByteTrack (Zhang et al., ECCV 2022)   — two-stage association
+  # "ocsort"    — OC-SORT   (Cao et al., CVPR 2023)     — observation-centric re-update
+  mode: bytetrack
+  sort:
+    lost_track_buffer: 30
+    track_activation_threshold: 0.25
+    minimum_consecutive_frames: 3
+    minimum_iou_threshold: 0.3
+  bytetrack:
+    lost_track_buffer: 30
+    track_activation_threshold: 0.7
+    minimum_consecutive_frames: 2
+    minimum_iou_threshold: 0.1
+    high_conf_det_threshold: 0.6
+  ocsort:
+    lost_track_buffer: 30
+    minimum_consecutive_frames: 3
+    minimum_iou_threshold: 0.3
+    high_conf_det_threshold: 0.6
+    direction_consistency_weight: 0.2
+    delta_t: 3
+
+capture:
+  enabled: false
+  output_dir: "/app/recordings"  # must match the recordings volume in docker-compose.yaml
+
+inference_recorder:
+  enabled: false
+  output_dir: "/app/recordings"  # must match the recordings volume in docker-compose.yaml
+  layout: "side_by_side"  # rgb | ir | side_by_side | dual
+  video_fps: 10         # null → inherits service.max_fps
+  draw_detections: true
+
+monitoring:
+  window_frames: 30        # rolling window size for stdout aggregate stats
+  report_interval_s: 10.0  # how often to print rolling stats to stdout
+  # Directory for CSV log files (inference_stats.csv, inference_detections.csv).
+  # The ./logs volume in docker-compose.yaml maps /app/logs → ./logs/ on the host,
+  # so the files are visible there after writing.
+  log_dir: "/app/logs"
+  hw_poll_every_frames: 30  # refresh hailo temp/power and CPU/RAM every N frames
+  log_status_line: false     # set false to suppress per-frame timing + detection lines in console output
+
+evaluation:
+  # Set enabled: true to run a single-pass evaluation against ground truth annotations.
+  # Requires the dataset to have a labels/ directory with Pascal VOC XML files.
+  # Forces loop: false on the provider (one pass only).
+  enabled: false
+  iou_threshold: 0.5        # IoU threshold for TP/FP matching
+  iou_range: true           # also compute mAP@0.5:0.95 (COCO-style)
