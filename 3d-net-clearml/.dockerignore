@@ -1,0 +1,6 @@
+visdrone_dronevehicle_yolo_rgbt
+workspace
+venv
+.venv
+.git
+.gitignore

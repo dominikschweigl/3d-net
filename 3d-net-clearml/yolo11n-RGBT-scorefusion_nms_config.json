@@ -1,0 +1,51 @@
+{
+    "nms_scores_th": 0.2,
+    "nms_iou_th": 0.7,
+    "image_dims": [
+        640,
+        640
+    ],
+    "max_proposals_per_class": 100,
+    "classes": 5,
+    "regression_length": 16,
+    "background_removal": false,
+    "background_removal_index": 0,
+    "bbox_decoders": [
+        {
+            "name": "bbox_decoder86",
+            "stride": 8,
+            "reg_layer": "conv86",
+            "cls_layer": "conv89"
+        },
+        {
+            "name": "bbox_decoder97",
+            "stride": 16,
+            "reg_layer": "conv97",
+            "cls_layer": "conv100"
+        },
+        {
+            "name": "bbox_decoder112",
+            "stride": 32,
+            "reg_layer": "conv112",
+            "cls_layer": "conv115"
+        },
+        {
+            "name": "bbox_decoder131",
+            "stride": 8,
+            "reg_layer": "conv131",
+            "cls_layer": "conv134"
+        },
+        {
+            "name": "bbox_decoder142",
+            "stride": 16,
+            "reg_layer": "conv142",
+            "cls_layer": "conv145"
+        },
+        {
+            "name": "bbox_decoder157",
+            "stride": 32,
+            "reg_layer": "conv157",
+            "cls_layer": "conv160"
+        }
+    ]
+}
