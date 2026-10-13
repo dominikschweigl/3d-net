@@ -37,8 +37,10 @@ from trackers.core.ocsort.tracker import OCSORTTracker
 from trackers.core.sort.tracker import SORTTracker
 from trackers.eval import box_iou, compute_clear_metrics, compute_hota_metrics, compute_identity_metrics
 
+DETECTION_ROOT = Path(__file__).resolve().parents[2]
+
 # Add the detection package to the path so inference_service is importable.
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(DETECTION_ROOT))
 from inference_service.config import (  # noqa: E402
     ByteTrackConfig,
     ModalityMode,
@@ -50,7 +52,7 @@ from inference_service.preprocessor import Preprocessor  # noqa: E402
 
 
 # ── Configuration — edit these to change the evaluation ───────────────────────
-DATA_ROOT      = str(Path(__file__).resolve().parent.parent / "data" / "3d_net")
+DATA_ROOT      = str(DETECTION_ROOT / "data" / "3d_net")
 HEF_PATH       = "models/midP3_fusion_3d_net.hef"
 MODALITY       = ModalityMode.RGBT      # ModalityMode.RGB | .THERMAL | .RGBT
 CONF_THRESHOLD = 0.2

@@ -42,10 +42,10 @@ dominik-schweigl@dominik-schweigl-ThinkPad-T14s-Gen-5:~/code/3d-net-clearml$ nma
 
 The first entry is the host desktop and the second one is the raspberry Pi.
 This we can confirm by running `ping 10.42.0.78` and then connecting to it
-via ssh using the configured 'bernard' user and password 'tec12345'.
+via ssh. The ssh credentials can be found in the company internal 1Password vault.
 
 ```bash
-ssh bernard@10.42.0.78
+ssh <user>@10.42.0.78
 ```
 
 ## Camera Network Configuration
@@ -249,7 +249,7 @@ Using the inference scripts, you should see the input and output format of the `
 model. 
 
 ```bash
-bernard@bernard:~/object_detection $ python inference_images.py 
+<user>@<host>:~/object_detection $ python inference_images.py 
 
 --- Input VStreams ---
 yolov11n/input_layer1               shape=(640, 640, 3) type=FormatType.UINT8

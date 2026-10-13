@@ -26,7 +26,7 @@ import fiftyone as fo
 try:
     from .rtdod_xml_parser import RTDODXmlParser
 except ImportError:  # pragma: no cover
-    from detection.fiftyone.fiftyone_builder.rtdod_xml_parser import RTDODXmlParser
+    from rtdod_xml_parser import RTDODXmlParser
 
 
 DATA_ROOT = Path(__file__).resolve().parent.parent.parent / "data" / "rtdod"

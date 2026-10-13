@@ -1,7 +1,7 @@
 services:
   eval-tracker:
     build:
-      context: ../..
+      context: ../../..
       dockerfile: detection/tracker/eval/Dockerfile
     # Pass through the Hailo PCIe accelerator from the RPi host.
     devices:

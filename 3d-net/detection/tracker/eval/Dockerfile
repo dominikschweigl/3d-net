@@ -1,5 +1,5 @@
-# Build context must be the repo root:
-#   docker build -f detection/tracker/Dockerfile .
+# Build context must be the folder that contains detection/:
+#   docker build -f detection/tracker/eval/Dockerfile .
 #
 # hailo_platform is NOT installed inside the image.
 # It is mounted from the RPi host at runtime via docker-compose volumes,
@@ -17,7 +17,7 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python deps (hailo_platform excluded — provided by host mount)
-COPY detection/tracker/requirements.txt .
+COPY detection/tracker/eval/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy tracker eval code and the inference_service it imports from
@@ -27,5 +27,5 @@ COPY detection/__init__.py        detection/__init__.py
 
 ENV PYTHONUNBUFFERED=1
 
-ENTRYPOINT ["python", "detection/tracker/eval_tracker.py"]
+ENTRYPOINT ["python", "detection/tracker/eval/eval_tracker.py"]
 CMD ["--help"]

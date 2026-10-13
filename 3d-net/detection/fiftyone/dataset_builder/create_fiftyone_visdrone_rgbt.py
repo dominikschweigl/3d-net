@@ -27,7 +27,7 @@ try:
     from .visdrone_xml_parser import VisdroneXmlParser
 except ImportError:  # pragma: no cover
     # Allows running as a standalone script
-    from detection.fiftyone.fiftyone_builder.visdrone_xml_parser import VisdroneXmlParser
+    from visdrone_xml_parser import VisdroneXmlParser
 
 DATA_ROOT = Path(__file__).resolve().parent.parent.parent / "data" / "visdrone_dronevehicle"
 DEFAULT_S3_CACHE_DIR = Path(__file__).resolve().parent / "_s3_cache" / "visdrone_dronevehicle"

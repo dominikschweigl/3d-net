@@ -34,7 +34,7 @@ try:
     from .m3fd_xml_parser import M3FDXmlParser
 except ImportError:  # pragma: no cover
     # Allows running as a standalone script
-    from detection.fiftyone.fiftyone_builder.m3fd_xml_parser import M3FDXmlParser
+    from m3fd_xml_parser import M3FDXmlParser
 
 
 DATA_ROOT = Path(__file__).resolve().parent.parent.parent / "data" / "m3fd"
